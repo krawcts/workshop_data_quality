@@ -19,3 +19,17 @@ def load_settings():
         "db_port": os.getenv("POSTGRES_PORT"),
     }
     return settings
+
+def extract_from_sql(query: str) -> pd.DataFrame:
+    settings = load_settings()
+
+    # Create the connection string based on settings
+    connection_string = f"postgresql://{settings['db_user']}:{settings['db_pass']}@{settings['db_host']}:{settings['db_port']}/{settings['db_name']}"
+
+    # Create connection engine
+    engine = create_engine(connection_string)
+
+    with engine.connect() as conn, conn.begin():
+            df_crm = pd.read_sql(query, conn)
+
+    return df_crm
